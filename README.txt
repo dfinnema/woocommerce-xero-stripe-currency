@@ -40,5 +40,8 @@ Please head over to https://github.com/dfinnema/woocommerce-xero-stripe-currency
 
 == Changelog ==
 
+= 1.1 =
+* Added compatibility for woocommerce-xero-stripe-fees plugin
+
 = 1.0 =
 * Initial Release
