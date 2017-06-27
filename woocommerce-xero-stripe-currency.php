@@ -39,6 +39,16 @@ if ( ! defined( 'WPINC' ) ) {
  *  
  */  
 
+// Plugin Updater
+require 'plugin-update-checker/plugin-update-checker.php';
+$dfc_currency_puc = Puc_v4_Factory::buildUpdateChecker(
+	'https://github.com/dfinnema/woocommerce-xero-stripe-currency',
+	__FILE__,
+	'woocommerce-xero-stripe-currency'
+);
+$dfc_currency_puc->setBranch('release');
+
+
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-woocommerce-xero-stripe-currency-activator.php
