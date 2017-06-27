@@ -1,0 +1,100 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce Xero Stripe Currency\n"
+"POT-Creation-Date: 2017-06-27 17:32+1200\n"
+"PO-Revision-Date: 2017-06-27 17:34+1200\n"
+"Last-Translator: Dennis Finnema <dennis@itchef.nz>\n"
+"Language-Team: \n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.2\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: woocommerce-xero-stripe-currency.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:120
+msgid ""
+"Sending payments to Xero does not work with this plugin enabled. Please turn "
+"off this option to avoid getting errors"
+msgstr ""
+"Betalingen sturen naar Xero werkt niet met deze plugin ingeschakeld. Gelieve "
+"deze optie uitschakelen om te voorkomen dat je fout meldingen ziet"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:151
+msgid "Stripe Currency"
+msgstr "Stripe Valuta"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:159
+msgid "Stripe Currency Tax"
+msgstr "Stripe Valuta Belasting"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:181
+msgid "Currency code of the primary Stripe currency (needs to match Xero too)."
+msgstr "De valutacode die Stripe gebruikt (moet ook overeenkomen met Xero)."
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:198
+msgid "Foreign currency transactions are tax free"
+msgstr "Transacties in vreemde valuta zijn belastingvrij"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:267
+msgid "ERROR: No Stripe Fee found for order"
+msgstr "FOUT: Kan geen Stripe kosten vinden voor order"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:281
+msgid "ERROR: No Stripe NET Amount found for order"
+msgstr "FOUT: Geen Stripe bedrag gevonden voor order"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:348
+#, php-format
+msgid "(%1$s %2$s)"
+msgstr "(%1$s %2$s)"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:448
+#, php-format
+msgid "Converted order to %d for Xero Invoice"
+msgstr "Valuta geconverteerd naar %d voor Xero factuur"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:517
+msgid "Settings"
+msgstr "Instellingen"
+
+#: includes/class-woocommerce-xero-stripe-currency-activator.php:40
+msgid ""
+"<a href=\"https://woocommerce.com/products/xero/\">WooCommerce Xero "
+"Integration</a> is required to be installed and activated!"
+msgstr ""
+"<a href=\"https://woocommerce.com/products/xero/\">WooCommerce Xero "
+"Integration</a> is vereist!"
+
+#. Plugin Name of the plugin/theme
+msgid "WooCommerce Xero Stripe Currency"
+msgstr "WooCommerce Xero Stripe Currency"
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/dfinnema/woocommerce-xero-stripe-currency"
+msgstr "https://github.com/dfinnema/woocommerce-xero-stripe-currency"
+
+#. Description of the plugin/theme
+msgid ""
+"Extends the WooCommerce Xero Extension with Currency Conversion for single "
+"currency xero subscriptions"
+msgstr ""
+"Converteer bestellingen met buitenlandse valuta naar uw Stripe / Xero "
+"rekening valuta"
+
+#. Author of the plugin/theme
+msgid "IT Chef"
+msgstr "IT Chef"
+
+#. Author URI of the plugin/theme
+msgid "https://itchef.nz"
+msgstr "https://itchef.nz"
