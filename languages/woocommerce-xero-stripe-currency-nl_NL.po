@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WooCommerce Xero Stripe Currency\n"
-"POT-Creation-Date: 2017-06-27 17:32+1200\n"
-"PO-Revision-Date: 2017-06-27 17:34+1200\n"
+"POT-Creation-Date: 2017-06-27 22:33+1200\n"
+"PO-Revision-Date: 2017-06-27 22:34+1200\n"
 "Last-Translator: Dennis Finnema <dennis@itchef.nz>\n"
 "Language-Team: \n"
 "Language: nl_NL\n"
@@ -53,17 +53,22 @@ msgstr "FOUT: Kan geen Stripe kosten vinden voor order"
 msgid "ERROR: No Stripe NET Amount found for order"
 msgstr "FOUT: Geen Stripe bedrag gevonden voor order"
 
-#: admin/class-woocommerce-xero-stripe-currency-admin.php:348
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:366
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:428
 #, php-format
 msgid "(%1$s %2$s)"
 msgstr "(%1$s %2$s)"
 
-#: admin/class-woocommerce-xero-stripe-currency-admin.php:448
-#, php-format
-msgid "Converted order to %d for Xero Invoice"
-msgstr "Valuta geconverteerd naar %d voor Xero factuur"
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:482
+msgid "ERROR: Total rounding too high"
+msgstr "FOUT: Totale afronding te hoog"
 
-#: admin/class-woocommerce-xero-stripe-currency-admin.php:517
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:654
+#, php-format
+msgid "Converted order to %s for Xero Invoice"
+msgstr "Valuta geconverteerd naar %s voor Xero factuur"
+
+#: admin/class-woocommerce-xero-stripe-currency-admin.php:735
 msgid "Settings"
 msgstr "Instellingen"
 
