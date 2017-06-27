@@ -9,6 +9,7 @@ Converts the order amounts to your Stripe currency for easier reconciliation in 
   - NZ GST support only at this time
   - Keeps orginal currency amounts in description
   - Any Stripe currency is supported
+  - Also works with the 'woocommerce-xero-stripe-fees' plugin
   
   Note sending payments to Xero is not currently supported for Stripe Currency. Amounts may change slightly due to stripe sending it 7 days later
 
