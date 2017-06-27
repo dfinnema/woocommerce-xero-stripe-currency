@@ -35,6 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  *  FILTER wc_xero_stripe_currency_not_found_text       = changes the ORDER NOTE Text when no stripe fee is found in the order
  *  FILTER wc_xero_stripe_currency_not_found_net_text   = changes the ORDER NOTE Text when no stripe net amount is found in the order
  *  FILTER wc_xero_stripe_currency_order_note           = changes the ORDER NOTE text that a stripe currency conversion has been done to the order
+ *  FILTER wc_xero_stripe_currency_total_mismatch_text  = changes the ORDER NOTE text that a stripe currency conversion has encountered a rounding error
  *  
  */  
 

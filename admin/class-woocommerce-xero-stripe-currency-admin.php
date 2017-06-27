@@ -287,23 +287,258 @@ class Woocommerce_Xero_Stripe_Currency_Admin {
             return $xml_input;
         }
 
-        // Keep Orginal fee for changing the totals later
-        $stripe_fee_org = $stripe_fee;
-        $stripe_amount_org = $stripe_amount;
+        
+        // What Currency was this charged in?
+        $order_currency = $data_array['Invoice']['CurrencyCode'];
 
-        // Remove GST from the Stripe Fee (15% for NZ as per IRD website)
-        $stripe_fee = $stripe_fee - (( $stripe_fee * 3 ) / 23 );
+        // Lets find the currency conversion percentage, based on total and stripe
+        $stipe_currency_point = ($stripe_fee + $stripe_amount) / $data_array['Invoice']['Total'];
+        
+        //DEBUG
+        $this->log(' > Stripe Currency Point: '.$stipe_currency_point);
 
-        // Turn the stripe fee negative (to remove from the total)
-        $stripe_fee_n = 0-$stripe_fee;
-
-        // Are Forgein Currency transactions tax free?
+        // Are Foreign Currency transactions tax free?
         if ('on' == get_option('wc_xero_dfc_stripe_currency_tax', false)) {
             $stipe_currency_taxfree = true;
         } else {
             $stipe_currency_taxfree = false;
         }
+        
+        //DEBUG
+        $this->log('RAW: '.json_encode($data_array['Invoice']['LineItems']));
 
+        // Setup the Group
+        $group = array();
+
+        // How many items to we have in the order?
+        if ($this->has_string_keys($data_array['Invoice']['LineItems']['LineItem'])) {
+            
+            $order_items_i = count($data_array['Invoice']['LineItems']);
+        } else {
+            
+            $order_items_i = count($data_array['Invoice']['LineItems']['LineItem']);
+        }
+        
+        // Set Total 
+        $stripe_currency_invoice_total = 0;
+        
+        // DEBUG
+        $this->log('Amount of Items: '.$order_items_i);
+
+        // If more then 1, use the group method, else just add.
+        if (1 < $order_items_i) {
+            // Split the products
+            foreach($data_array['Invoice']['LineItems']['LineItem'] as $item) { 
+                
+                // DEBUG STUFF
+                $this->log( "   Item Start" );
+                $this->log( "    > ".json_encode($item) );
+                $this->log( "   Item  End" );
+                
+                // Is the Foreign currency tax free? (most places, depending on your business)
+                if ($stipe_currency_taxfree) {
+                    
+                    // Add the unit amount and per unit tax amount, tax is total of all quantities combined
+                    $tmp = ( $item['UnitAmount'] + ( $item['TaxAmount'] / $item['Quantity'] ) );
+
+                    // Keep the orginal amount for the description
+                    $tmp_org = $tmp;
+
+                    // Lets Apply the currency conversion (based on total and stripe conversions)
+                    $tmp = $tmp * $stipe_currency_point;
+                    
+                    // Merge it back into the line item
+                    $item['UnitAmount'] = "$tmp";
+                    $item['TaxAmount'] = "0";
+                    
+                } else {
+                    $tmp = $item['UnitAmount'] * $stipe_currency_point;
+                    
+                    // Keep the orginal amount for the description
+                    $tmp_org = $item['UnitAmount'];
+
+                    // Add the tax into local currency (asumes the tax rate is the same, will fix this later)
+                    $tmp_tax = $item['TaxAmount']  * $stipe_currency_point;
+                    
+                    // Merge it back into the line item
+                    $item['UnitAmount'] = "$tmp";
+                    $item['TaxAmount'] = "$tmp_tax";
+                }
+                
+                // Add orginal amount currency to description (eg; Product1 (20 EUR) )
+                $item['Description'] .= ' '.apply_filters( 'wc_xero_stripe_currency_line_text' , 
+                    sprintf(esc_html__('(%1$s %2$s)','woocommerce-xero-stripe-currency'), round($tmp_org,2) , $order_currency)
+                );
+                
+                // More Tax Stuff, lets make sure if no tax is needed we tell Xero
+                if ($stipe_currency_taxfree) {
+                    $item['TaxType'] = "NONE";
+                } else {
+
+                    // Sets Tax Type to New Zealand GST on Income (as per XERO docs), TODO: make this dynamic
+                    $item['TaxType'] = "OUTPUT2";
+                }
+                
+                // DEBUG STUFF
+                $this->log( "   Item MOD Start" );
+                $this->log( "    > ".json_encode($item) );
+                $this->log( "   Item MOD End" );
+                
+                // Is the Item NOT a rounding Adjustment? (no point when it is worked into the currency conversion)
+                if ('Rounding adjustment' !== substr($item['Description'],0,19)) {
+                    
+                    // Add the Totals up
+                    $stripe_currency_invoice_total += $item['Quantity'] * $tmp;
+                    
+                    // Add the Tax to the total (if tax is included)
+                    if ($stipe_currency_taxfree) {
+                        $stripe_currency_invoice_total += $tmp_tax;
+                    }
+                    
+                    // Merge it back into the the rest of the line items
+                    $group[] = $item;
+                }
+                
+                
+            }
+        } else {
+            
+            // TMP
+            $item = $data_array['Invoice']['LineItems']['LineItem'];
+            
+            // DEBUG STUFF
+            $this->log( "   Item Start" );
+            $this->log( "    > ".json_encode($item) );
+            $this->log( "   Item  End" );
+
+            // Is the Foreign currency tax free? (most places, depending on your business)
+            if ($stipe_currency_taxfree) {
+
+                // Add the unit amount and per unit tax amount, tax is total of all quantities combined
+                $tmp = ( $item['UnitAmount'] + ( $item['TaxAmount'] / $item['Quantity'] ) );  
+                
+                // Keep the orginal amount for the description
+                $tmp_org = $tmp;
+                    
+                // Lets Apply the currency conversion (based on total and stripe conversions)
+                $tmp = $tmp * $stipe_currency_point;
+                
+                // Add it to the total
+                $stripe_currency_invoice_total += $tmp;
+
+                // Merge it back into the line item
+                $item['UnitAmount'] = "$tmp";
+                $item['TaxAmount'] = "0";
+
+            } else {
+                $tmp = $item['UnitAmount'] * $stipe_currency_point;
+                
+                // Keep the orginal amount for the description
+                $tmp_org = $item['UnitAmount'];
+
+                // Add the tax into local currency (asumes the tax rate is the same, will fix this later)
+                $tmp_tax = $item['TaxAmount']  * $stipe_currency_point;
+
+                // Merge it back into the line item
+                $item['UnitAmount'] = "$tmp";
+                $item['TaxAmount'] = "$tmp_tax";
+                
+                // Add it to the total
+                $stripe_currency_invoice_total += ($tmp + $tmp_tax);
+                
+            }
+            
+            // Add orginal amount currency to description (eg; Product1 (20 EUR) )
+            $item['Description'] .= ' '.apply_filters( 'wc_xero_stripe_currency_line_text' , 
+                sprintf(esc_html__('(%1$s %2$s)','woocommerce-xero-stripe-currency'), round($tmp_org,2) , $order_currency)
+            );
+
+            // More Tax Stuff, lets make sure if no tax is needed we tell Xero
+            if ($stipe_currency_taxfree) {
+                $item['TaxType'] = "NONE";
+            } else {
+
+                // Sets Tax Type to New Zealand GST on Income (as per XERO docs), TODO: make this dynamic
+                $item['TaxType'] = "OUTPUT2";
+            }
+            
+            // DEBUG STUFF
+            $this->log( "   Item MOD Start" );
+            $this->log( "    > ".json_encode($item) );
+            $this->log( "   Item MOD End" );
+            
+            
+            // Just add the product (just 1) to the group
+            $group[] = $item;
+        }
+
+
+        // Add the Line Item per Array (for XML Keys) (if more then 1 product)
+        if (1 < $order_items_i) {
+            $group = array('LineItem'=>$group);
+        }
+
+        // Merge it back into the main Data Stream
+        $data_array['Invoice']['LineItems'] = $group;
+
+        //DEBUG
+        $this->log('MERGED: '.json_encode($data_array['Invoice']['LineItems']));
+
+        // Change the Total to the Stripe Currency and do tax calculations
+        if ($stipe_currency_taxfree) {
+            $data_array['Invoice']['Total'] = ( $data_array['Invoice']['Total'] + $data_array['Invoice']['TotalTax'] ) * $stipe_currency_point;
+            $data_array['Invoice']['TotalTax'] = 0;
+        } else {
+            $data_array['Invoice']['Total'] = $data_array['Invoice']['Total'] * $stipe_currency_point;
+            $data_array['Invoice']['TotalTax'] = data_array['Invoice']['TotalTax'] * $stipe_currency_point;
+        }
+        
+        // Check if the totals match, rounding can cause it to be out by a few cents
+        $stripe_total = $stripe_fee + $stripe_amount;
+        if ($stripe_total !== round($stripe_currency_invoice_total,2)) {
+            
+            // Not the same, lets see by how much we are out
+            if ( ($stripe_currency_invoice_total-$stripe_total) > 0.1) {
+                
+                // Greater then 10 cents (XERO's limit), abort
+                
+                // Add Order Note
+                $this->add_order_note($order_id,
+                    apply_filters( 'wc_xero_stripe_currency_total_mismatch_text' , __('ERROR: Total rounding too high','woocommerce-xero-stripe-currency'))
+                );
+
+                // DEBUG
+                $tmp = $data_array['Invoice']['Total'] - $stripe_total;
+                $this->log("> Stripe  Total: $stripe_total" );
+                $this->log("> AUTO Invoice Total: ".$data_array['Invoice']['Total'] );
+                $this->log("> MAN  Invoice Total: ".$stripe_currency_invoice_total );
+                $this->log("> Abort Stripe Currency -> Total rounding too high ($tmp)" );
+                
+                //throw new Exception('DEBUG ROUNDING');
+
+                return $xml_input;
+                
+            } else {
+                
+                // Correct the total 
+                $stripe_currency_invoice_total -=  $stripe_total;
+                $data_array['Invoice']['Total'] = "$stripe_currency_invoice_total";
+                
+                // DEBUG
+                $this->log("> NOTICE: Rounding adjustments made of ".$data_array['Invoice']['Total']-$stripe_total );
+            } 
+        }
+
+
+        // Change it back to a string (xml issues otherwise...)
+        $data_array['Invoice']['TotalTax'] = (string)$data_array['Invoice']['TotalTax'];
+
+        // Change the Xero Invoice to the Xero Supported Currency
+        $data_array['Invoice']['CurrencyCode'] = $xero_stripe_currency;
+        
+        
+
+        /*
 
         // Make the changes to the XML Data
         if (array_key_exists('Invoice',$data_array)) {
@@ -318,7 +553,8 @@ class Woocommerce_Xero_Stripe_Currency_Admin {
 
                     // Debug
                     $this->log("> Currency Point: ".$stipe_currency_point." ( ( ".$stripe_amount_org." + ".$stripe_fee_org.") / ".$data_array['Invoice']['Total']." )");
-
+                    
+                    
                     // Set TMP ARRAY
                     $dd = array('LineItems');
                     
@@ -412,11 +648,13 @@ class Woocommerce_Xero_Stripe_Currency_Admin {
 
                     // Change the Xero Invoice to the Xero Supported Currency
                     $data_array['Invoice']['CurrencyCode'] = $xero_stripe_currency;
+            
                 }
 
             }
         }
 
+        */
 
         // Create XML
         $xml_output = DFC_XML::arrayToXML($data_array);
@@ -445,7 +683,7 @@ class Woocommerce_Xero_Stripe_Currency_Admin {
         
         // Add Order Note
         $this->add_order_note($order_id, apply_filters( 'wc_xero_stripe_currency_order_note' , 
-                                        sprintf(esc_html__('Converted order to %d for Xero Invoice','woocommerce-xero-stripe-currency'), $xero_stripe_currency
+                                        sprintf(esc_html__('Converted order to %s for Xero Invoice','woocommerce-xero-stripe-currency'), $xero_stripe_currency
                                                )));
 
         // Give it back to Woocommerce Xero Extension to Send
@@ -503,6 +741,18 @@ class Woocommerce_Xero_Stripe_Currency_Admin {
         // Add order note 
         $order      = wc_get_order( $order_id );
         $comment_id = $order->add_order_note( $note );
+    }
+    
+    /**
+	 * Checks whether the array has non-integer keys 
+	 * 
+	 * (not whether the array is sequentially-indexed or zero-indexed)
+	 *
+	 * @since    1.0.1
+	 * @credit   https://stackoverflow.com/a/4254008
+	 */
+    function has_string_keys(array $array) {
+      return count(array_filter(array_keys($array), 'is_string')) > 0;
     }
     
     /**
