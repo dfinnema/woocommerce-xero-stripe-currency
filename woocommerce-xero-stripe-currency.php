@@ -9,7 +9,7 @@
  * Plugin Name:       WooCommerce Xero Stripe Currency
  * Plugin URI:        https://github.com/dfinnema/woocommerce-xero-stripe-currency
  * Description:       Extends the WooCommerce Xero Extension with Currency Conversion for single currency xero subscriptions
- * Version:           1.1
+ * Version:           1.2
  * Author:            IT Chef
  * Author URI:        https://itchef.nz
  * License:           GPL-2.0+
@@ -18,8 +18,8 @@
  * Domain Path:       /languages
  * 
  * @woocommerce-extension
- * WC requires at least: 3.0
- * WC tested up to: 3.0.9
+ * WC requires at least: 3.3.5
+ * WC tested up to: 3.3.6
  */
 
 // If this file is called directly, abort.
