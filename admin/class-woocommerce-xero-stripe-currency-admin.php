@@ -256,8 +256,8 @@ class Woocommerce_Xero_Stripe_Currency_Admin {
         }
 
         // Has the payment been proccssed? (to get Stripe Fee)
-        $stripe_fee = get_post_meta( $order_id , 'Stripe Fee', true );
-        $stripe_amount = get_post_meta( $order_id , 'Net Revenue From Stripe', true );
+        $stripe_fee = get_post_meta( $order_id , '_stripe_fee', true );
+        $stripe_amount = get_post_meta( $order_id , '_stripe_net', true );
 
         // No fee found? lets abort
         if (empty($stripe_fee)) {
