@@ -105,7 +105,7 @@ class Currency {
 
 					// Line Item Currency
 					/* translator: The Xero Description added to each line showing the original currency amount. eg; ($100.00 NZD) */
-					$line_item_description_addon = __(' ($%d %s)','woocommerce-xero-stripe-currency');
+					$line_item_description_addon = __(' ($%01.2f %s)','woocommerce-xero-stripe-currency');
 
 					// Check Basic Data Quick
 					if ( $stripe_fee && $stripe_amount && $invoice_total && $invoice_currency ) {
@@ -121,10 +121,11 @@ class Currency {
 							if ('on' == get_option( 'wc_xero_dfc_stripe_currency_tax' , false) ) {
 								$item_amount_old = $line_items[ XERO::UNITAMOUNT ] + $line_items[ XERO::TAXAMOUNT ];
 							}
-							$currency_description = sprintf( $line_item_description_addon, floatval(round( $item_amount_old ,2) ), $invoice_currency );
+	
+							$currency_description = sprintf( $line_item_description_addon, $item_amount_old , $invoice_currency );
 
 							// Description Add the original charge
-							$line_items[ XERO::DESCRIPTION ] = $line_items[ XERO::DESCRIPTION ] . $currency_description;
+							$line_items[ XERO::DESCRIPTION ] = $line_items[ XERO::DESCRIPTION ] . strval($currency_description);
 
 							// Convert amount to new amount
 							$line_items[ XERO::UNITAMOUNT ] = $line_items[ XERO::UNITAMOUNT ] * $stripe_currency_point;
@@ -164,10 +165,10 @@ class Currency {
 								}
 
 								// Get Original Amount
-								$currency_description = sprintf( $line_item_description_addon, floatval(round( $item_amount_old ,2) ), $invoice_currency );
+								$currency_description = sprintf( $line_item_description_addon, $item_amount_old , $invoice_currency );
 
 								// Description Add the original charge
-								$line_item[ XERO::DESCRIPTION ] = $line_item[ XERO::DESCRIPTION ] . $currency_description;
+								$line_item[ XERO::DESCRIPTION ] = $line_item[ XERO::DESCRIPTION ] . strval($currency_description);
 
 								// Convert amount to new amount
 								$line_item[ XERO::UNITAMOUNT ] = $line_item[ XERO::UNITAMOUNT ] * $stripe_currency_point;
